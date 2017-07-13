@@ -186,7 +186,7 @@ default_md          = sha256
 x509_extensions     = v3_ca
 ```
 
-`[req_distinguished_name]` bölümü, bir sertifika imzalama talebinde normal olarak gerekli olan bilgileri içerir. İsteğe bağlı olarak bazı varsayılanlar belirleyebilirsiniz.
+`[req_distinguished_name]` bölümü, bir sertifika imzalama talebinde gerekli olan bilgileri içerir. İsterseniz bazı varsayılanlar belirleyebilirsiniz.
 
 
 ```
