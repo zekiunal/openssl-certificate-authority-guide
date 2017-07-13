@@ -104,7 +104,7 @@ OpenSSL'in kullanması için bir yapılandırma dosyası oluşturmanız gerekir.
 
 <details>
 
-<summary>Ekran</details>
+<summary>Ekran</summar>
 
 ```
 [ ca ]
