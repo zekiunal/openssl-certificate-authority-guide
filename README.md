@@ -102,11 +102,19 @@ OpenSSL'in kullanması için bir yapılandırma dosyası oluşturmanız gerekir.
 
 `[ca]` bölümü zorunludur. Burada OpenSSL'e `[CA_default]` bölümündeki seçenekleri kullanmasını söylüyoruz.
 
+<details>
+
+<summary>Ekran</details>
+
 ```
 [ ca ]
 # `man ca`
 default_ca = CA_default
 ```
+
+</details>
+
+
 
 `[CA_default]` bölümü bir dizi öntanımlı değer içerir. Daha önce belirlediğiniz dizini işaret ettiğinden emin olun (`/root/ca`).
 
