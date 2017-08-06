@@ -8,6 +8,7 @@
 Bu kılavuz, OpenSSL komut satırı araçlarını kullanarak kendi sertifika yetkilinizi (CA) nasıl kurup kullanacağınızı gösterir. Kendi adınıza hizmet veren Sertifika yetkilisi, intranet web sitesini güvence altına almak için sunucu sertifikaları verebilir veya bir sunucuya kimlik doğrulaması yapmalarını sağlamak için müşterilere sertifikalar üretebilir. Sertifika yetkilisi buna benzer birçok durumda kullanışlı bir çözümdür.
 
 <details>
+
 # OpenSSL Certificate Authority
 
 This guide demonstrates how to act as your own certificate authority (CA) using the OpenSSL command-line tools. This is useful in a number of situations, such as issuing server certificates to secure an intranet website, or for issuing certificates to clients to allow them to authenticate to a server.
@@ -26,6 +27,7 @@ Bir sertifika yetkilisi (CA), dijital sertifikaları imzalayan bir oteritedir. �
 Bazı durumlarda DigiCert gibi bir sertifika yetkilisine (CA'ya) ödeme yapmak yerine kendi sunucularımızdan birini sertifika yetkilisi (CA'ya) gibi göstermek daha mantıklı olabilir. Bu durumlar genellikle, bir intranet web sitesinin güvenliğini sağlamak veya bir sunucuya kimlik doğrulamasını yapmayı sağlamak için müşterilere sertifikalar (örn., Apache, OpenVPN) üretmek olabilir.
 
 <details>
+
 ## Introduction
 
 OpenSSL is a free and open-source cryptographic library that provides several command-line tools for handling digital certificates. Some of these tools can be used to act as a certificate authority.
@@ -33,6 +35,7 @@ OpenSSL is a free and open-source cryptographic library that provides several co
 A certificate authority (CA) is an entity that signs digital certificates. Many websites need to let their customers know that the connection is secure, so they pay an internationally trusted CA (eg, VeriSign, DigiCert) to sign a certificate for their domain.
 
 In some cases it may make more sense to act as your own CA, rather than paying a CA like DigiCert. Common cases include securing an intranet website, or for issuing certificates to clients to allow them to authenticate to a server (eg, Apache, OpenVPN).
+
 </details>
 
 ## Anahtar Çiftinin Oluşturulması
@@ -44,6 +47,7 @@ Genellikle kök CA, sunucu veya istemci sertifikalarını doğrudan imzalamaz. K
 > Not : Kök çiftini güvenli bir ortamda oluşturmak en iyi yöntemdir. İdeal olarak, bu ortam, Internet'ten kalıcı olarak izole edilmiş tamamen şifreli, `air gap` bir bilgisayarda olmalıdır. Kablosuz kartı çıkarın ve ethernet bağlantı noktasını tutkalla doldurun.
 
 <details>
+
 ## Create the root pair
 
 Acting as a certificate authority (CA) means dealing with cryptographic pairs of private keys and public certificates. The very first cryptographic pair we’ll create is the root pair. This consists of the root key (ca.key.pem) and root certificate (ca.cert.pem). This pair forms the identity of your CA.
@@ -51,20 +55,18 @@ Acting as a certificate authority (CA) means dealing with cryptographic pairs of
 Typically, the root CA does not sign server or client certificates directly. The root CA is only ever used to create one or more intermediate CAs, which are trusted by the root CA to sign certificates on their behalf. This is best practice. It allows the root key to be kept offline and unused as much as possible, as any compromise of the root key is disastrous.
 
 > Note: It’s best practice to create the root pair in a secure environment. Ideally, this should be on a fully encrypted, air gapped computer that is permanently isolated from the Internet. Remove the wireless card and fill the ethernet port with glue.
+
 </details>
 
 ### Dizinlerin Hazırlanması 
 
 Tüm anahtarları ve sertifikaları saklamak için bir dizin seçin (`/root/ca`).
 
-
-
 ```
 mkdir /root/ca
 ```
 
 Dizin yapısı oluşturun. `index.txt` ve` serial` dosyaları, imzalı sertifikaları takip etmek için düz bir dosyadır ve veritabanı görevi görürler.
-
 
 ```
 cd /root/ca
@@ -187,7 +189,6 @@ x509_extensions     = v3_ca
 ```
 
 `[req_distinguished_name]` bölümü, bir sertifika imzalama talebinde gerekli olan bilgileri içerir. İsterseniz bazı varsayılanlar belirleyebilirsiniz.
-
 
 ```
 [ req_distinguished_name ]
@@ -484,6 +485,7 @@ chmod 400 private/ca.key.pem
 ```
 
 <details>
+
 ### Create the root key
 
 Create the root key (`ca.key.pem`) and keep it absolutely secure. Anyone in possession of the root key can issue trusted certificates. Encrypt the root key with AES 256-bit encryption and a strong password.
@@ -499,6 +501,7 @@ Verifying - Enter pass phrase for ca.key.pem: secretpassword
 
 chmod 400 private/ca.key.pem
 ```
+
 </details>
 
 ### Kök Sertifikayı Oluşturun
@@ -527,6 +530,7 @@ chmod 444 certs/ca.cert.pem
 ```
 
 <details>
+
 ### Create the root certificate
 
 Use the root key (`ca.key.pem`) to create a root certificate (`ca.cert.pem`). Give the root certificate a long expiry date, such as twenty years. Once the root certificate expires, all certificates signed by the CA become invalid.
@@ -551,6 +555,7 @@ Email Address []:
 
 chmod 444 certs/ca.cert.pem
 ```
+
 </details>
 
 ### Kök Sertifikayı Doğrulayın
@@ -601,6 +606,7 @@ X509v3 extensions:
 ```
 
 <details>
+
 ### Verify the root certificate
 
 ```
@@ -703,6 +709,7 @@ policy          = policy_loose
 ```
 
 <details>
+
 ### Prepare the directory
 
 The root CA files are kept in `/root/ca`. Choose a different directory (`/root/ca/intermediate`) to store the intermediate CA files.
@@ -897,6 +904,7 @@ openssl verify -CAfile certs/ca.cert.pem intermediate/certs/intermediate.cert.pe
 
 intermediate.cert.pem: OK
 ```
+
 </details>
 
 ### Sertifika Zinciri Dosyası Oluşturun (ca-chain.cert.pem)
@@ -914,6 +922,7 @@ chmod 444 intermediate/certs/ca-chain.cert.pem
 
 
 <details>
+
 ### Create the certificate chain file
 
 When an application (eg, a web browser) tries to verify a certificate signed by the intermediate CA, it must also verify the intermediate certificate against the root certificate. To complete the chain of trust, create a CA certificate chain to present to the application.
@@ -926,6 +935,7 @@ chmod 444 intermediate/certs/ca-chain.cert.pem
 ```
 
 > Note: Our certificate chain file must include the root certificate because no client application knows about it yet. A better option, particularly if you’re administrating an intranet, is to install your root certificate on every client that needs to connect. In that case, the chain file need only contain your intermediate certificate.
+
 </details>
 
 ## Sunucu ve İstemci Sertifikalarını İmzalayın
@@ -935,11 +945,13 @@ chmod 444 intermediate/certs/ca-chain.cert.pem
 > Not: Aşağıdaki adımlar, sertifika yetkilisi olarak uyguladığımız bir bakış açısının sonucudur. Bu bakış açısının yerine, istemci kendi özel anahtarını ve sertifika imzalama isteğini (CSR) kendi anahtarını size göstermeden oluşturabilir. Size kendi CSR'ını verirler ve sizde imzalı bir sertifikayı geri verirsiniz. Böyle bir durumda senaryoda `genrsa` ve` req` komutlarını atlayabilirsiniz.
 
 <details>
+
 ## Sign server and client certificates
 
 We will be signing certificates using our intermediate CA. You can use these signed certificates in a variety of situations, such as to secure connections to a web server or to authenticate clients connecting to a service.
 
 > Note: The steps below are from your perspective as the certificate authority. A third-party, however, can instead create their own private key and certificate signing request (CSR) without revealing their private key to you. They give you their CSR, and you give back a signed certificate. In that scenario, skip the `genrsa` and `req` commands.
+
 </details>
 
 ### Bir Anahtar Oluşturun
@@ -957,6 +969,7 @@ chmod 400 intermediate/private/www.example.com.key.pem
 ```
 
 <details>
+
 ### Create a key
 
 Our root and intermediate pairs are 4096 bits. Server and client certificates normally expire after one year, so we can safely use 2048 bits instead.
@@ -970,6 +983,7 @@ cd /root/ca
 openssl genrsa -aes256 -out intermediate/private/www.example.com.key.pem 2048
 chmod 400 intermediate/private/www.example.com.key.pem
 ```
+
 </details>
 
 ### Bir Sertifika Oluşturun
@@ -1010,6 +1024,7 @@ V 160420124233Z 1000 unknown ... /CN=www.example.com
 ```
 
 <details>
+
 ### Create a certificate
 
 Use the private key to create a certificate signing request (CSR). The CSR details don’t need to match the intermediate CA. For server certificates, the Common Name must be a fully qualified domain name (eg, `www.example.com`), whereas for client certificates it can be any unique identifier (eg, an e-mail address). Note that the Common Name cannot be the same as either your root or intermediate certificate.
@@ -1105,6 +1120,7 @@ www.example.com.cert.pem: OK
 ```
 
 <details>
+
 ### Verify the certificate
 
 ```
@@ -1159,6 +1175,7 @@ openssl verify -CAfile intermediate/certs/ca-chain.cert.pem intermediate/certs/w
 
 www.example.com.cert.pem: OK
 ```
+
 </details>
 
 ### Sertifikayı Yayınlayın
@@ -1182,6 +1199,7 @@ You can now either deploy your new certificate to a server, or distribute the ce
 * `www.example.com.cert.pem`
 
 If you’re signing a CSR from a third-party, you don’t have access to their private key so you only need to give them back the chain file (`ca-chain.cert.pem`) and the certificate (`www.example.com.cert.pem`).
+
 </details>
 
 ## Sertifika İptal Listeleri
@@ -1193,6 +1211,7 @@ CRL'yi herkes tarafından erişilebilir bir adreste yayınlayın (ör. `http://e
 > Not: Bazı uygulama sağlayıcıları CRL'ler yerine Çevrimiçi Sertifika Durum Protokolü'nü (OCSP) kullanmaktadır.
 
 <details>
+
 ## Certificate revocation lists
 
 A certificate revocation list (CRL) provides a list of certificates that have been revoked. A client application, such as a web browser, can use a CRL to check a server’s authenticity. A server application, such as Apache or OpenVPN, can use a CRL to deny access to clients that are no longer trusted.
@@ -1200,6 +1219,7 @@ A certificate revocation list (CRL) provides a list of certificates that have be
 Publish the CRL at a publicly accessible location (eg, `http://example.com/intermediate.crl.pem`). Third-parties can fetch the CRL from this location to check whether any certificates they rely on have been revoked.
 
 > Note: Some applications vendors have deprecated CRLs and are instead using the Online Certificate Status Protocol (OCSP).
+
 </details>
 
 ### Yapılandırma Dosyasını Hazırlayın
@@ -1336,6 +1356,7 @@ R 160420124740Z 150411125310Z 1001 unknown ... /CN=bob@example.com
 Bob'un sertifikasını iptal ettikten sonra, Alice CRL'yi yeniden oluşturmalıdır.
 
 <details>
+
 ### Revoke a certificate
 
 Let’s walk through an example. Alice is running the Apache web server and has a private folder of heart-meltingly cute kitten pictures. Alice wants to grant her friend, Bob, access to this collection.
@@ -1405,6 +1426,7 @@ R 160420124740Z 150411125310Z 1001 unknown ... /CN=bob@example.com
 ```
 
 After revoking Bob’s certificate, Alice must re-create the CRL.
+
 </details>
 
 ### CRL'nin Sunucu Tarafında Kullanımı
@@ -1424,8 +1446,8 @@ For client certificates, it’s typically a server-side application (eg, Apache)
 In Alice’s case, she can add the `SSLCARevocationPath` directive to her Apache configuration and copy the CRL to her web server. The next time that Bob connects to the web server, Apache will check his client certificate against the CRL and deny access.
 
 Similarly, OpenVPN has a `crl-verify` directive so that it can block clients that have had their certificates revoked.
-</details>
 
+</details>
 
 ### CRL'nin İstemci Tarafında Kullanımı
 
@@ -1445,6 +1467,7 @@ openssl x509 -in cute-kitten-pictures.example.com.cert.pem -noout -text
 ```
 
 <details>
+
 ### Client-side use of the CRL
 
 For server certificates, it’s typically a client-side application (eg, a web browser) that performs the verification. This application must have remote access to the CRL.
@@ -1461,6 +1484,7 @@ openssl x509 -in cute-kitten-pictures.example.com.cert.pem -noout -text
         Full Name:
           URI:http://example.com/intermediate.crl.pem
 ```
+
 </details>
 
 ## Çevrimiçi Sertifika Durumu Protokolü
@@ -1474,6 +1498,7 @@ Bir CA; sertifika imzaladığında, sertifikaya genellikle bir OCSP sunucu adres
 > Not: Mümkün olduğunca OCSP kullanmanız önerilir, genelde web sitesi sertifikaları için OCSP'ye gereksinim duyacaksınız. Bazı web tarayıcıları, CRL desteğini kullanımdan kaldırmıştır.
 
 <details>
+
 ## Online Certificate Status Protocol
 
 The Online Certificate Status Protocol (OCSP) was created as an alternative to certificate revocation lists (CRLs). Similar to CRLs, OCSP enables a requesting party (eg, a web browser) to determine the revocation state of a certificate.
@@ -1483,6 +1508,7 @@ When a CA signs a certificate, they will typically include an OCSP server addres
 As an example, when a web browser is presented with a server certificate, it will send a query to the OCSP server address specified in the certificate. At this address, an OCSP responder listens to queries and responds with the revocation status of the certificate.
 
 > Note: It’s recommended to use OCSP instead where possible, though realistically you will tend to only need OCSP for website certificates. Some web browsers have deprecated or removed support for CRLs.
+
 </details>
 
 ### Yapılandırma Dosyasını Hazırlayın
@@ -1496,6 +1522,7 @@ authorityInfoAccess = OCSP;URI:http://ocsp.example.com
 ```
 
 <details>
+
 ### Prepare the configuration file
 
 To use OCSP, the CA must encode the OCSP server location into the certificates that it signs. Use the `authorityInfoAccess` option in the appropriate sections, which in our case means the `[ server_cert ]` section.
@@ -1505,6 +1532,7 @@ To use OCSP, the CA must encode the OCSP server location into the certificates t
 # ... snipped ...
 authorityInfoAccess = OCSP;URI:http://ocsp.example.com
 ```
+
 </details>
 
 ### OCSP Çifti Oluşturun
@@ -1557,6 +1585,7 @@ openssl x509 -noout -text -in intermediate/certs/ocsp.example.com.cert.pem
 ```
 
 <details>
+
 ### Create the OCSP pair
 
 The OCSP responder requires a cryptographic pair for signing the response that it sends to the requesting party. The OCSP cryptographic pair must be signed by the same CA that signed the certificate being checked.
@@ -1605,6 +1634,7 @@ openssl x509 -noout -text -in intermediate/certs/ocsp.example.com.cert.pem
     X509v3 Extended Key Usage: critical
         OCSP Signing
 ```
+
 </details>
 
 ### Bir Sertifikayı İptal Edin
@@ -1696,6 +1726,7 @@ OCSP Response Data:
 ```
 
 <details>
+
 ### Revoke a certificate
 
 The OpenSSL `ocsp` tool can act as an OCSP responder, but it’s only intended for testing. Production ready OCSP responders exist, but those are beyond the scope of this guide.
@@ -1783,6 +1814,7 @@ OCSP Response Data:
     Revocation Time: Apr 11 13:01:09 2015 GMT
     This Update: Apr 11 13:03:00 2015 GMT
 ```
+
 </details>
 
 ## Ekler
@@ -2062,6 +2094,7 @@ extendedKeyUsage = critical, OCSPSigning
 ```
 
 <details>
+
 ## Appendix
 
 ### Root CA configuration file
@@ -2337,4 +2370,5 @@ authorityKeyIdentifier = keyid,issuer
 keyUsage = critical, digitalSignature
 extendedKeyUsage = critical, OCSPSigning
 ```
+
 </details>
