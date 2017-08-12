@@ -5,7 +5,7 @@
 
 # OpenSSL Sertifika Yetkilisi
 
-Bu kılavuz, OpenSSL komut satırı araçlarını kullanarak kendi sertifika yetkilinizi (CA) nasıl kurup kullanacağınızı gösterir. Kendi adınıza hizmet veren Sertifika yetkilisi, intranet web sitesini güvence altına almak için sunucu sertifikaları verebilir veya bir sunucuya kimlik doğrulaması yapmalarını sağlamak için müşterilere sertifikalar üretebilir. Sertifika yetkilisi buna benzer birçok durumda kullanışlı bir çözümdür.
+Bu kılavuz, OpenSSL komut satırı araçlarını kullanarak kendi sertifika yetkilinizi (CA) nasıl kurup kullanacağınızı gösterir. Kendi adınıza hizmet veren sertifika yetkilisi, intranet web sitesini güvence altına almak için sunucu sertifikaları verebilir veya bir sunucuya kimlik doğrulaması yapmalarını sağlamak için müşterilere sertifikalar üretebilir. Sertifika yetkilisi buna benzer birçok durumda kullanışlı bir çözümdür.
 
 <details>
 
@@ -100,7 +100,7 @@ echo 1000 > serial
 
 ### Yapılandırma Dosyasını Hazırlayın
 
-OpenSSL'in kullanması için bir yapılandırma dosyası oluşturmanız gerekir. Kök CA yapılandırma dosyasını [Ekler](#) 'dan `/root/ca/openssl.cnf` dosyasına kopyalayın.
+OpenSSL'in kullanması için bir yapılandırma dosyası oluşturmanız gerekir. Kök CA yapılandırma dosyasını [Ekler](#)'den `/root/ca/openssl.cnf` dosyasına kopyalayın.
 
 `[ca]` bölümü zorunludur. Burada OpenSSL'e `[CA_default]` bölümündeki seçenekleri kullanmasını söylüyoruz.
 
@@ -281,6 +281,7 @@ authorityKeyIdentifier = keyid,issuer
 keyUsage = critical, digitalSignature
 extendedKeyUsage = critical, OCSPSigning
 ```
+
 <details>
 
 ### Prepare the configuration file
@@ -909,7 +910,7 @@ intermediate.cert.pem: OK
 
 ### Sertifika Zinciri Dosyası Oluşturun (ca-chain.cert.pem)
 
-Bir uygulama (örneğin bir web tarayıcısı) ara CA tarafından imzalanmış bir sertifikayı doğrulamaya çalıştığında, oda kök sertifika ile ara sertifikayı doğrulayabilmelidir. Güven zincirini tamamlamak için, uygulamaya sunulacak bir CA sertifika zinciri oluşturun.
+Bir uygulama (örneğin bir web tarayıcısı) ara CA tarafından imzalanmış bir sertifikayı doğrulamaya çalıştığında, o da kök sertifika ile ara sertifikayı doğrulayabilmelidir. Güven zincirini tamamlamak için, uygulamaya sunulacak bir CA sertifika zinciri oluşturun.
 
 CA sertifika zincirini oluşturmak için, ara ve kök sertifikaları bir araya getirin. Bu dosyayı daha sonra ara CA tarafından imzalanmış sertifikaları doğrulamak için kullanacağız.
 
@@ -919,7 +920,6 @@ chmod 444 intermediate/certs/ca-chain.cert.pem
 ```
 
 > Not: İstemciler, kök sertifikayı bilmediği için sertifika zinciri dosyamız kök sertifikayı da içermelidir. Daha iyi bir seçenek, özellikle bir intraneti yönetiyorsanız, kök sertifikanızı bütün istemcilere yüklemektir. Bu durumda, zincir dosyasının yalnızca ara sertifika içermesi yeterlidir.
-
 
 <details>
 
@@ -956,9 +956,9 @@ We will be signing certificates using our intermediate CA. You can use these sig
 
 ### Bir Anahtar Oluşturun
 
-Kök ve ara çiftlerimiz 4096 bittir. Sunucu ve istemci sertifikaları normalde bir yıl sonra sona erecek, bu sebeple sunucu ve istemci için 2048 biti güvenle kullanabilirsiniz.
+Kök ve ara çiftlerimiz 4096 bit'tir. Sunucu ve istemci sertifikaları normalde bir yıl sonra sona erecek, bu sebeple sunucu ve istemci için 2048 bit'i güvenle kullanabilirsiniz.
 
-> Not: 4096 bit, 2048 bitten biraz daha güvenli olmasına rağmen, TLS doğrulamasını yavaşlatır ve doğrulama sırasında işlemci yükünü önemli ölçüde artırır. Bu nedenle çoğu web sitesi 2048 bitlik çift kullanır.
+> Not: 4096 bit, 2048 bit'ten biraz daha güvenli olmasına rağmen, TLS doğrulamasını yavaşlatır ve doğrulama sırasında işlemci yükünü önemli ölçüde artırır. Bu nedenle çoğu web sitesi 2048 bit'lik çift kullanır.
 
 Bir web sunucusu (ör. Apache) ile kullanılacak şifreleme çifti oluşturuyorsanız, web sunucusunu her yeniden başlattığınızda bu şifreyi girmeniz gerekecektir. Parolasız bir anahtar oluşturmak için `-aes256` seçeneğini çıkartmak isteyebilirsiniz.
 
@@ -1070,7 +1070,7 @@ V 160420124233Z 1000 unknown ... /CN=www.example.com
 openssl x509 -noout -text -in intermediate/certs/www.example.com.cert.pem
 ```
 
-Sağlayıcı(Issuer) ara CA'dır. Konu sertifikanın kendisiyle ilgilidir.
+Sağlayıcı (Issuer) ara CA'dır. Konu sertifikanın kendisiyle ilgilidir.
 
 ```
 Signature Algorithm: sha256WithRSAEncryption
@@ -1284,6 +1284,7 @@ openssl crl -in intermediate/crl/intermediate.crl.pem -noout -text
 No certificates have been revoked yet, so the output will state `No Revoked Certificates`.
 
 You should re-create the CRL at regular intervals. By default, the CRL expires after 30 days. This is controlled by the `default_crl_days` option in the `[ CA_default ]` section.
+
 </details>
 
 ### Bir Sertifikayı İptal Edin
@@ -1453,7 +1454,7 @@ Similarly, OpenVPN has a `crl-verify` directive so that it can block clients tha
 
 Sunucu sertifikaları için, doğrulama işlemini gerçekleştiren bir istemci tarafı uygulaması (örn. Bir web tarayıcı) olur. Bu uygulamanın CRL'ye uzaktan erişimi olmalıdır.
 
-Bir sertifika, 'crlDistributionPoints' içeren bir uzantıyla imzalanmışsa, istemci tarafılı bir uygulama bu bilgiyi okuyabilir ve CRL'yi belirtilen konumdan getirir.
+Bir sertifika, `crlDistributionPoints` içeren bir uzantıyla imzalanmışsa, istemci tarafılı bir uygulama bu bilgiyi okuyabilir ve CRL'yi belirtilen konumdan getirir.
 
 CRL dağıtım noktaları, X509v3 sertifikasında ayrıntılı olarak görülebilir.
 
@@ -1491,7 +1492,7 @@ openssl x509 -in cute-kitten-pictures.example.com.cert.pem -noout -text
 
 Çevrimiçi Sertifika Durumu Protokolü (OCSP), sertifika iptal listelerine (CRL) alternatif olarak oluşturuldu. CRL'lere benzer şekilde, OCSP, bir sertifika iptal durumunu belirlemek için istek yapan tarafın (örneğin, bir web tarayıcısı) olmasını sağlar.
 
-Bir CA; sertifika imzaladığında, sertifikaya genellikle bir OCSP sunucu adresi (örn., `http://ocsp.example.com`) ekleyecektir. Bu işlevde CRL'lerde kullanılan `crlDistributionPoints` ile benzerdir.
+Bir CA; sertifika imzaladığında, sertifikaya genellikle bir OCSP sunucu adresi (örn., `http://ocsp.example.com`) ekleyecektir. Bu işlev, CRL'lerde kullanılan `crlDistributionPoints` ile benzerdir.
 
 Örnek olarak, bir web tarayıcısı bir sunucu sertifikasıyla sunulduğunda, sertifikada belirtilen OCSP sunucu adresine bir sorgu gönderecektir. Bu adreste OCSP, sorguları dinler ve sertifikanın iptal durumuyla ilgili yanıtı verir.
 
@@ -1674,9 +1675,9 @@ openssl ocsp -CAfile intermediate/certs/ca-chain.cert.pem -url http://127.0.0.1:
 
 Çıktının başlangıcını şöyledir:
 
-* Başarılı bir cevap alındı mı ("OCSP Response Status")
-* Yanıtlayıcı kimliği ('Responder Id')
-* Sertifikanın iptal durumu ("Cert Status")
+* Başarılı bir cevap alındı mı (`OCSP Response Status`)
+* Yanıtlayıcı kimliği (`Responder Id`)
+* Sertifikanın iptal durumu (`Cert Status`)
 
 ```
 OCSP Response Data:
@@ -1705,7 +1706,7 @@ Revoking Certificate 1003.
 Data Base Updated
 ```
 
-Daha önce olduğu gibi, OCSP yanıtlayıcıyı çalıştırın ve başka bir terminalde bir sorgu gönderin. Bu sefer, çıktıda 'Cert Status: revoked' ve 'Revocation Time' elde edilecektir.
+Daha önce olduğu gibi, OCSP yanıtlayıcıyı çalıştırın ve başka bir terminalde bir sorgu gönderin. Bu sefer, çıktıda `Cert Status: revoked` ve `Revocation Time` elde edilecektir.
 
 ```
 OCSP Response Data:
